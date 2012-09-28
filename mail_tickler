@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+# This script is really ugly, but it works.
+
+import os, sys, StringIO, pickle, string, smtplib
+import calendar, datetime, time
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.append( os.path.join(PROJECT_ROOT, 'geeknote') )
+
+from geeknote import geeknote
+
+def empty_to_newline(s):
+    if len(s) == 0:
+        return '\n'
+    else:
+        return s
+
+today_date = datetime.date.fromtimestamp(time.time())
+tag = "%02i-%s" % (today_date.month, calendar.month_name[today_date.month])
+
+connector = geeknote.GeekNoteConnector()
+notes = geeknote.Notes(connector)
+
+buf = StringIO.StringIO()
+oldstdout = sys.stdout
+sys.stdout = buf
+
+notes.find(notebooks="Ticklers", tags=tag)
+sys.stdout = oldstdout
+
+results = string.split(buf.getvalue(), '\r')[-1]
+search_results = string.split(results, '\n')[2:-1]
+
+note_ids = []
+for result in search_results:
+    bits = string.split(result)
+    note_id = string.atoi(bits[0])
+    title = string.join(bits[3:])
+    print "%i - '%s'" % (note_id, title)
+    note_ids.append(note_id)
+
+print "Notes to fetch:", note_ids
+
+for note in note_ids:
+    print "Processing note %i" % (note)
+    buf.truncate(0)
+    sys.stdout = buf
+    notes.show("%i" % note)
+    sys.stdout = oldstdout
+    show_results = string.split(buf.getvalue(), '\r')
+    note = string.split(show_results[-1], '\n')
+    mail_title = "Tickler: %s" % (note[1])
+    mail_body = note[5:]
+    filtered_body = filter(lambda x: len(x) > 0, mail_body)
+    if len(filtered_body) == 0:
+        mail_body = [ "No text" ]
+    else:
+        mail_body = map(empty_to_newline, mail_body)
+
+    msg = "From: %s\r\nTo: %s\r\nSubject: %s\r\n%s\r\n" %  \
+            ("Paul's Evernote Reminder <paul@blacksun.org.uk", \
+                    "Paul Walker <paul@blacksun.org.uk>", \
+                    mail_title, \
+                    string.join(mail_body))
+    smtp = smtplib.SMTP('localhost')
+    #smtp.set_debuglevel(1)
+    smtp.sendmail("paul@blacksun.org.uk", "paul@blacksun.org.uk", msg)
+    smtp.quit()
+
+buf.close()
