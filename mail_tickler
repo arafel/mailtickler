@@ -37,13 +37,13 @@ for result in search_results:
     bits = string.split(result)
     note_id = string.atoi(bits[0])
     title = string.join(bits[3:])
-    print "%i - '%s'" % (note_id, title)
+    #print "%i - '%s'" % (note_id, title)
     note_ids.append(note_id)
 
-print "Notes to fetch:", note_ids
+#print "Notes to fetch:", note_ids
 
 for note in note_ids:
-    print "Processing note %i" % (note)
+    #print "Processing note %i" % (note)
     buf.truncate(0)
     sys.stdout = buf
     notes.show("%i" % note)
@@ -59,7 +59,7 @@ for note in note_ids:
         mail_body = map(empty_to_newline, mail_body)
 
     msg = "From: %s\r\nTo: %s\r\nSubject: %s\r\n%s\r\n" %  \
-            ("Paul's Evernote Reminder <paul@blacksun.org.uk", \
+            ("Paul's Evernote Reminder <paul@blacksun.org.uk>", \
                     "Paul Walker <paul@blacksun.org.uk>", \
                     mail_title, \
                     string.join(mail_body))
