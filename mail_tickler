@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # This script is really ugly, but it works.
+# (At least, it works with geeknote commit 577d30afd08d1952da2e5e9b8f65dfb537186b02)
 
 import os, sys, StringIO, pickle, string, smtplib
 import calendar, datetime, time
