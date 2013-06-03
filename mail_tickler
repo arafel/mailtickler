@@ -34,6 +34,8 @@ search_results = string.split(results, '\n')[2:-1]
 
 note_ids = []
 for result in search_results:
+    if "Total found: 0" == result:
+        break
     bits = string.split(result)
     note_id = string.atoi(bits[0])
     title = string.join(bits[3:])
