@@ -1,0 +1,38 @@
+Useful notes (for me at least):
+
+From http://git-scm.com/book/ch6-7.html:
+
+So, if the Rack project updates, you can pull in upstream changes by switching
+to that branch and pulling:
+
+$ git checkout rack_branch
+$ git pull
+
+Then, you can merge those changes back into your master branch. You can use git
+merge -s subtree and it will work fine; but Git will also merge the histories
+together, which you probably don’t want. To pull in the changes and prepopulate
+the commit message, use the --squash and --no-commit options as well as the -s
+subtree strategy option:
+
+$ git checkout master
+$ git merge --squash -s subtree --no-commit rack_branch
+Squash commit -- not updating HEAD
+Automatic merge went well; stopped before committing as requested
+
+All the changes from your Rack project are merged in and ready to be committed
+locally. You can also do the opposite — make changes in the rack subdirectory
+of your master branch and then merge them into your rack_branch branch later to
+submit them to the maintainers or push them upstream.
+
+To get a diff between what you have in your rack subdirectory and the code in
+your rack_branch branch — to see if you need to merge them — you can’t use the
+normal diff command. Instead, you must run git diff-tree with the branch you
+want to compare to:
+
+$ git diff-tree -p rack_branch
+
+Or, to compare what is in your rack subdirectory with what the master branch on
+the server was the last time you fetched, you can run
+
+$ git diff-tree -p rack_remote/master
+
